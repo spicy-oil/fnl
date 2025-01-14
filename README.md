@@ -84,6 +84,6 @@ Parameters of `example.py` (apart from the experimental ones) we expect to requi
 ## References
 The example spectrum is available on the National Solar Observatory (NSO, Arizona US) Archives [1, 2], used in the recent spectrum and term analysis of Fe II [3].
 
-[1] NSO 2024, NSO Historical Archive: McMath-Pierce Facility, https://nispdata.nso.edu/ftp/FTS_cdrom/ [Accessed January 2025]
-[2] Hill F., Branston D. and Erdwurm W. 1997, The National Solar Observatory Digital Library, *AAS Solar Physics Division Meeting 28*, pp. 2-72
-[3] Nave G. and Johansson S. 2013, *The Astrophysical Journal Supplement Series*, vol. 204, no. 1, p. 1.
+[1] NSO 2024, NSO Historical Archive: McMath-Pierce Facility, https://nispdata.nso.edu/ftp/FTS_cdrom/ [Accessed January 2025]  
+[2] Hill F., Branston D. and Erdwurm W. 1997, The National Solar Observatory Digital Library, *AAS Solar Physics Division Meeting 28*, pp. 2-72  
+[3] Nave G. and Johansson S. 2013, *The Astrophysical Journal Supplement Series*, vol. 204, no. 1, p. 1
