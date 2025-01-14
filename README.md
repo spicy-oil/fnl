@@ -43,15 +43,15 @@ If running with CPU, one can speed up by, for example: reducing `hidden_size` to
 The approach is to separately train and use a model for each experimental spectrum. Usage requires moderate human input to check for expected behaviours in data input, simulations, model training, and model predictions. This is best done step-by-step while viewing interactive `matplotlib` plots. Example configurations and steps for creating a line list is detailed in `example.py` and elaborated below:
 
 #### Step 1 - Configuration
-List of experimental parameters and hyperparameters specified for line list production. Finishes with outputting and plotting the spectrum preprocessed for fitting S/N and width distributions, and for NN inference: ![Figure 1:](data/example_spec_plot.png) 
+List of experimental parameters and hyperparameters specified for line list production. Finishes with outputting and plotting the spectrum preprocessed for fitting S/N and width distributions, and for NN inference: ![Figure 1:](data/example_spec_plot.png)   
 Checking this plot ensures spectrum is loaded correctly (red), and the spectrum intended for NN analysis (grey) is also preprocessed correctly, something is wrong if either is missing. The grey crosses are can also be used to check for interpolation.
 
 #### Step 2 - Spectrum Scanning
-Fit Voigt profiles for lines above 10 S/N in the preprocessed spectrum to obtain S/N and line width distributions for simulation: ![Figure 2:](data/example_spec_widths.png)
+Fit Voigt profiles for lines above 10 S/N in the preprocessed spectrum to obtain S/N and line width distributions for simulation: ![Figure 2:](data/example_spec_widths.png)  
 Checking this plot ensures the Doppler width to wavenumber and pressure width relations are fitted reasonably. Also, this plot helps with estimation for the `Gw_std` input for the `spec_gen` instance.
 
 #### Step 3 - Spectrum Simulation
-Repeated simulation of the experimental spectrum under a specified line density, default is ten times the line density of lines detected above 10 S/N during step 2. This can take quite a few minutes because of the Voigt function evaluation and Fourier transformation for instrumental effects of each spectral line. Memory costs and duration increase with `N_interp > 0`: ![Figure 3:](data/example_spec_simulation.png)
+Repeated simulation of the experimental spectrum under a specified line density, default is ten times the line density of lines detected above 10 S/N during step 2. This can take quite a few minutes because of the Voigt function evaluation and Fourier transformation for instrumental effects of each spectral line. Memory costs and duration increase with `N_interp > 0`: ![Figure 3:](data/example_spec_simulation.png)  
 Checking this plot ensures the simulated spectrum resembles the experimental spectrum in terms of line density/frequency of blending and S/N & line width distributions.
 
 #### Step 4 - Model Training
@@ -59,7 +59,7 @@ Initialises a LSTM-FCNN model and train it using simulated spectra. Early stoppi
 Checking this plot ensures expected plateau of loss, if fluctuations are lage: learning rate could be too large, data could be too simple (low line density), `batch_size` could be too small, training dataset could be too small. Performance metrics using accuracy, precision, recall, and F1-score are also plotted against epoch for threshold probability `peak_prob_th=0.5` (not shown).
 
 #### Step 5 - Model Inference
-Use the model to detect lines in the experimental spectrum using specified `peak_prob_th`: ![Figure 5:](data/example_spec_detection.png) 
+Use the model to detect lines in the experimental spectrum using specified `peak_prob_th`: ![Figure 5:](data/example_spec_detection.png)  
 This plot shows all lines detected by the model created and trained using the configured parameters. Since the line detection is on an experimental spectrum, we do not know how accurate these results are. Therefore, 'suitable' parameters, such as `snr_min` and `peak_prob_th=0.5`, are decided by human opinion using this plot. Another plot (not shown) shows the predicted peak probabilities across the spectrum.
 
 #### Step 6 - Line List Extraction
