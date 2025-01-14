@@ -56,7 +56,7 @@ Checking this plot ensures the simulated spectrum resembles the experimental spe
 
 #### Step 4 - Model Training
 Initialises a LSTM-FCNN model and train it using simulated spectra. Early stopping is implemented (training loop exits if lowest test loss does not decrease for more than 20 epochs) to avoid overfitting and reduce time costs. Adaptive learning rate is implemented for fine tuning during performance plateau (learning rate is multiplied by 0.8 if lowest test loss does not decrease for more than 5 epochs). Example loss against epoch during training: ![Figure 4:](data/example_spec_losses.png)  
-Checking this plot ensures expected plateau of loss, if fluctuations are lage: learning rate could be too large, data could be too simple (low line density), `batch_size` could be too small, training dataset could be too small. Performance metrics using accuracy, precision, recall, and F1-score are also plotted against epoch for threshold probability `peak_prob_th=0.5` (not shown).
+Checking this plot ensures expected plateau of loss, the vertical red line shows epoch with lowest test loss, and if fluctuations are lage: learning rate could be too large, data could be too simple (low line density), `batch_size` could be too small, training dataset could be too small. Performance metrics using accuracy, precision, recall, and F1-score are also plotted against epoch for threshold probability `peak_prob_th=0.5` (not shown).
 
 #### Step 5 - Model Inference
 Use the model to detect lines in the experimental spectrum using specified `peak_prob_th`: ![Figure 5:](data/example_spec_detection.png)  
