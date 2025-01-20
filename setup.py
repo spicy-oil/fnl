@@ -16,7 +16,8 @@ setup(
         'numpy >= 1.26.4, < 2',
         'scipy >= 1.13.0, < 2',
         'matplotlib >= 3.8.4, < 4',
-        'pandas >= 2.2.1, < 3',
+        'pandas >= 2.2.1, < 3', # for saving the linelist to Excel
+        'openpyxl >= 3.1.2, < 4', # for saving the linelist to Excel
         'torch >= 2.4.0, < 3',
         'scikit-learn >= 1.4.2, < 2',
         'tqdm >= 4.66.2, < 5'

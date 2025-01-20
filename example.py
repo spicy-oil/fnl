@@ -24,7 +24,7 @@ file = './data/example_spec.npy' # Get the spectrum
 scale_factor = 1 / .9e6 # to convert to snr, use 1 if already in snr scale
 spec = np.load(file) * scale_factor
 # if npo is not a power of 2, uncomment next line and use pad_spec()
-spec, npo, delw = nl.pad_spec(spec, npo, delw)
+spec, npo, delw = nl.pad_spec_to_power_of_2(spec, npo, delw)
 wn = start_wn + np.arange(npo) * delw # wn (cm-1), 1D-numpy array
 line_region = [20801,  26000] # Within which we wish to extract lines, e.g., if alias 1, spec around wn = 0 would be bad, so please change this accordingly
 fwhm = 0.1 # guess fwhm for the lines for scanning the spectrum for simulation parameters, this also determines Gw and Lw fit boundaries in the scan (see scan.py)!
@@ -46,7 +46,7 @@ blend_th = 3 # multiple of approx. FWHM to determine whether lines should be fit
 
 
 # Obtain the spectrum to be scanned for width and snr distributions
-scan_wn, scan_spec = nl.exp_spec_model_view(wn, spec, npo, line_region, mad_scaling, N_interp, chunk_size, plot=True)
+scan_wn, scan_spec = nl.process_experimental_spec_for_model(wn, spec, npo, line_region, mad_scaling, N_interp, chunk_size, plot=True)
 matplotlib.pyplot.show()
 
 
@@ -57,7 +57,7 @@ spec_scan_time = time.time()
 
 # Assuming Gw and Lw dominates line profile by fitting Voigt profiles
 # line_den_10 is lien density estimate for lines above 10 SNR, there are likely a few factor more lines below 10 SNR than the number of lines > 10 SNR 
-Gw_grad, Gw_cept, Lw_KDE, snr_hist, snr_bins, line_den_10 = nl.get_properties(scan_wn, scan_spec, fwhm=fwhm, plot=True)
+Gw_grad, Gw_cept, Lw_KDE, snr_hist, snr_bins, line_den_10 = nl.get_experimental_spec_properties(scan_wn, scan_spec, fwhm=fwhm, plot=True)
 matplotlib.pyplot.show()
 
 print('Spec scan time ', between(spec_scan_time, time.time()), ' mins')
@@ -68,7 +68,7 @@ print('Spec scan time ', between(spec_scan_time, time.time()), ' mins')
 ############################################################
 spec_sim_time = time.time()
 
-s = nl.spec_gen(
+s = nl.SpecSimulator(
     exp_res=exp_res, # From manual config in step 1
     start_wn=start_wn, # From manual config in step 1
     npo=npo, # From manual config in step 1
@@ -100,8 +100,8 @@ print('Spec simulation time ', between(spec_sim_time, time.time()), ' mins')
 ############################################################
 nn_training_time = time.time()
 
-model = nl.train(XY, line_region, model=None, chunk_size=chunk_size, batch_size=batch_size, num_epochs=num_epochs, lr=lr, plot=True) 
-# model=None initialises new model, otherwise can continue training for an existing model of class peak_indentifier from nn.py
+model = nl.train_model(XY, line_region, model=None, chunk_size=chunk_size, batch_size=batch_size, num_epochs=num_epochs, lr=lr, plot=True) 
+# model=None initialises new model, otherwise can continue training for an existing model of class PeakIdentifier from nn.py
 matplotlib.pyplot.show() # Plot an example simulation chunk evaluation
 
 print('NN training time ', between(nn_training_time, time.time()), ' mins')
@@ -114,7 +114,7 @@ nn_prediction_time = time.time()
 # line_pos are the class 1 positions, line_height are the corresponding snrs
 # wn_for_pred is the wn axis used for predictions (varies with N_interp)
 # peak_prob is prob. curve for class 1
-line_pos, line_height, wn_for_pred, peak_prob = nl.predict(model, batch_size, wn, spec, npo, exp_res, line_region, chunk_size, N_interp, peak_prob_th, mad_scaling, plot=True)
+line_pos, line_height, wn_for_pred, peak_prob = nl.get_model_predictions(model, batch_size, wn, spec, npo, exp_res, line_region, chunk_size, N_interp, peak_prob_th, mad_scaling, plot=True)
 matplotlib.pyplot.show() # Plot shows detected lines in spec and peak probabilities
 
 print('NN prediction and plotting time ', between(nn_prediction_time, time.time()), ' mins')
@@ -125,7 +125,7 @@ print('NN prediction and plotting time ', between(nn_prediction_time, time.time(
 ############################################################
 linelist_extraction_time = time.time()
 
-linelist, fitted_spec = nl.fit_spec(wn, spec, line_pos, line_height, Gw_grad, Gw_cept, Lw_KDE, exp_res, blend_th, plot=True)
+linelist, fitted_spec = nl.fit_and_get_linelist(wn, spec, line_pos, line_height, Gw_grad, Gw_cept, Lw_KDE, exp_res, blend_th, plot=True)
 matplotlib.pyplot.show() # Plot shows the fitted spectrum
 
 # If needs saving (linelist is pd DataFrame, fitted_spec is 1D np array)

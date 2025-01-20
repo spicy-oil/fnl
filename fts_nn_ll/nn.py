@@ -1,8 +1,8 @@
 '''
-Neural network - peak_identifier
-Loss function -  focal_loss 
-training loop - train()
-postprocessing - predict()
+Neural network - PeakIdentifier
+Loss function -  FocalLoss 
+training loop - train_model()
+postprocessing - get_model_predictions()
 '''
 
 import numpy as np
@@ -19,12 +19,12 @@ from scipy.signal import find_peaks
 
 
 #%% Neural network
-class peak_identifier(nn.Module):
+class PeakIdentifier(nn.Module):
     '''
     NN for line identification
     '''
     def __init__(self, hidden_size=64):
-        super(peak_identifier, self).__init__()
+        super(PeakIdentifier, self).__init__()
 
         hidden_size = hidden_size
 
@@ -66,7 +66,7 @@ class peak_identifier(nn.Module):
 
 #%% Loss functions
 
-class focal_loss(nn.Module):
+class FocalLoss(nn.Module):
     '''
     Mean loss for all pnts in the whole batch
     '''
@@ -75,7 +75,7 @@ class focal_loss(nn.Module):
         alpha - tensor of true class weights to partially handle class imbalance 
         gamma - focusing parameter to down-weight easy examples, also tried gamma=3 & 5, results appeared very similar
         '''
-        super(focal_loss, self).__init__()
+        super(FocalLoss, self).__init__()
         self.alpha = alpha
         self.gamma = gamma
         self.device = device
@@ -123,13 +123,13 @@ class CustomDataset(Dataset):
     
 #%% Training
 
-def train(xy, line_region, model=None, chunk_size=1024, batch_size=32, num_epochs=64, lr=0.001, hidden_size=64, plot=False):
+def train_model(xy, line_region, model=None, chunk_size=1024, batch_size=32, num_epochs=64, lr=0.001, hidden_size=64, plot=False):
     '''
     Parameters
     ----------
     xy : training data
     line_region : needed to not train too many chunks that are purely noise
-    model : peak_identifier instance, new one will be created if none specified
+    model : PeakIdentifier instance, new one will be created if none specified
     batch_size : int, optional
         power of 2. The default is 32.
     num_epochs : int, optional
@@ -179,7 +179,7 @@ def train(xy, line_region, model=None, chunk_size=1024, batch_size=32, num_epoch
 
     if model is None:
         # Initialize the model
-        model = peak_identifier(hidden_size).to(device)
+        model = PeakIdentifier(hidden_size).to(device)
 
     # Focal loss
     flattened_targets = Y_train.flatten()
@@ -188,7 +188,7 @@ def train(xy, line_region, model=None, chunk_size=1024, batch_size=32, num_epoch
     class_weights = total_samples / (len(class_counts) * class_counts)
     class_weights = torch.tensor(class_weights, dtype=torch.float32).to(device)
     
-    loss_fn = focal_loss(alpha=class_weights, gamma=2.0, device=device)
+    loss_fn = FocalLoss(alpha=class_weights, gamma=2.0, device=device)
 
     # Optimizer
     optimizer = optim.Adam(model.parameters(), lr=lr)
@@ -293,7 +293,7 @@ def train(xy, line_region, model=None, chunk_size=1024, batch_size=32, num_epoch
                 # Loss calculations
                 outputs = outputs.view(-1, 2)
                 targets = targets.view(-1)
-                loss = loss_fn(outputs, targets, mask) #focal_loss(outputs, targets, mask)
+                loss = loss_fn(outputs, targets, mask)
                 test_loss += loss.item()
                 
                 # Evaluation metrics related calculations using p_th = 0.5
@@ -425,7 +425,7 @@ def train(xy, line_region, model=None, chunk_size=1024, batch_size=32, num_epoch
 # %% Run prediction for real spectrum
 
 
-def predict(model, batch_size, wn, spec, npo, exp_res, line_region, chunk_size, N_interp, peak_prob_th, mad_scaling=False, plot=False):
+def get_model_predictions(model, batch_size, wn, spec, npo, exp_res, line_region, chunk_size, N_interp, peak_prob_th, mad_scaling=False, plot=False):
     '''
     Interpolates spec, scale wn, and input into model
     All consecutive points with peak prob above peak_prob_th (p_th) are grouped and identified for lines
@@ -555,4 +555,7 @@ def predict(model, batch_size, wn, spec, npo, exp_res, line_region, chunk_size, 
         plt.ylabel('snr')
         plt.legend(loc='upper right')
 
-    return [line_wn, line_height, chunks_relevant[:, 0].cpu().numpy(), predictions_relevant[:, 1].cpu().numpy()]
+    return [line_wn, # wn of detected lines
+            line_height, # snr of detected lines
+            chunks_relevant[:, 0].cpu().numpy(), # wn used for prediction 
+            predictions_relevant[:, 1].cpu().numpy()] # peak probability curve

@@ -1,8 +1,3 @@
-'''
-The function used for scanning spectrum for the parameters used as inputs for spec_gen of simulate.py,
-such as SNR, Gw & Lw width distributions
-'''
-
 import numpy as np
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
@@ -17,8 +12,11 @@ from sklearn.linear_model import HuberRegressor
 from sklearn.neighbors import KernelDensity
 
 #%%
-def get_properties(x, y, fwhm=0.1, plot=False):
+def get_experimental_spec_properties(x, y, fwhm=0.1, plot=False):
     '''
+    The function used for scanning spectrum for the parameters used as inputs for spec_gen of simulate.py,
+    such as SNR, Gw & Lw width distributions
+
     Parameters
     ----------
     x : 1D numpy array

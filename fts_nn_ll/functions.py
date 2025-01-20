@@ -73,9 +73,11 @@ def Lw_from_fwhm_Gw(fwhm, Gw):
     Lw_2 = f_l_2 / 2
     return Lw_2
 
-def pad_spec(spec, npo, delw):
+def pad_spec_to_power_of_2(spec, npo, delw):
     '''
-    FT spec of npo that is not a power of 2 (but is even), pad interferogram until length is 2^N (equally on both sides), then transform back
+    FT a spectrum of number of points (npo) and wavenumber interval (delw) that is not a power of 2 (but is even), 
+    pad the interferogram until length is 2^N (equally on both sides), 
+    then transform back
     if npo is not even, padded spec might be a few pnts off a power of 2, in which case add zeros or remove edge pnts in the spectrum...
     '''
     interferogram = np.fft.fftshift(np.fft.fft(spec))
@@ -87,7 +89,12 @@ def pad_spec(spec, npo, delw):
     dx = L / npo
     new_L = dx * new_npo
     new_delw = 1 / (2 * new_L)
-    return np.real(np.fft.ifft(np.fft.fftshift(padded_interferogram))) * (new_npo / npo), int(new_npo), new_delw
+    new_spec = np.real(np.fft.ifft(np.fft.fftshift(padded_interferogram))) * (new_npo / npo)
+    return (
+            new_spec, 
+            int(new_npo), 
+            new_delw 
+            )
 
 def preprocess_interp(wn, spec, N=1):
     '''
@@ -138,7 +145,7 @@ def mad(data, axis=None):
     mad_value = np.median(abs_deviation, axis=axis)  # Compute the median of the absolute deviations
     return mad_value
 
-def exp_spec_model_view(wn, spec, npo, line_region, mad_scaling, N_interp, chunk_size, plot=True):
+def process_experimental_spec_for_model(wn, spec, npo, line_region, mad_scaling, N_interp, chunk_size, plot=True):
     '''
     Approximately what the model sees, if mad_scaling, expect some discontinuities because different chunks my be scaled differently,
     but this is fine as prediction is done using overlapping windows.   
@@ -156,7 +163,7 @@ def exp_spec_model_view(wn, spec, npo, line_region, mad_scaling, N_interp, chunk
     print('------------------------------------------------')
     print('Slicing up the spectrum and scaling noise for each slice')
     for i in tqdm(range(0, npo * 2 ** N_interp, chunk_prediction_size)):
-        if mad_scaling:
+        if mad_scaling: # if mad_scaling is enabled, re-scale noise using median absolute deviation of the chunk
             # !!!!! HUMAN DECISIONs !!!!!
             scaling = 0.6745 / mad(input_spec[i:i+chunk_size]) # The MAD of Gaussian white noise is 0.675
             if scaling > 1: # only apply to raised noise levels
@@ -189,11 +196,14 @@ def exp_spec_model_view(wn, spec, npo, line_region, mad_scaling, N_interp, chunk
         plt.tight_layout()
     
     # Not returning interpolated points because we are only estimating widths and snr distributions
-    return chunks_relevant[:, 0][::int(2**N_interp)], chunks_relevant[:, 1][::int(2**N_interp)]
+    return (
+            chunks_relevant[:, 0][::int(2**N_interp)], # wn
+            chunks_relevant[:, 1][::int(2**N_interp)]  # spec
+            )
 
 
 
-def fit_spec(wn, spec, line_pos, line_height, Gw_grad, Gw_cept, Lw_KDE, exp_res, blend_thresh=2, min_snr=2, plot=False):
+def fit_and_get_linelist(wn, spec, line_pos, line_height, Gw_grad, Gw_cept, Lw_KDE, exp_res, blend_thresh=2, min_snr=2, plot=False):
     '''
     Fits the spectrum using asymmetric Voigt profiles given initial guesses for wn pos (line_pos) and peak pos (line_height)
     blend_tresh is multiples of FWHM, more means more lines per fit, which could be slow if line density is very high!

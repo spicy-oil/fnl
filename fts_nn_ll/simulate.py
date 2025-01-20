@@ -10,9 +10,10 @@ from tqdm import tqdm
 from scipy.fft import fft, ifft, fftshift
 from .functions import voigt, preprocess_interp
 
-class spec_gen():
+class SpecSimulator():
     '''
-    Spectra simulation based on experimental and spectrum scan parameters
+    Spectra simulation based on experimental and spectrum scan parameters.
+    Most likely external usage are the add_instrumental_effects() and xy() functions.
     '''
     def __init__(self, exp_res=None, start_wn=None, npo=None, delw=None, line_region=[None, None], N_interp=0,
                  Gw_grad=None, Gw_cept=None, Gw_std=0.3, Lw_KDE=None, snr_hist=[None, None], snr_min=3):
@@ -22,7 +23,7 @@ class spec_gen():
         '''
         # Histogram of log10 SNR of line list
         self.hist, self.bins = snr_hist
-        self.cdf = self.get_sample_dist()
+        self.cdf = self._get_sample_dist()
         
         # Spec Params
         self.exp_res = exp_res # cm-1
@@ -49,7 +50,7 @@ class spec_gen():
         # log_2 of the multiple of npo to interpolate through FT padding
         self.N_interp = N_interp
 
-    def init_lines(self, line_den=1):
+    def _init_lines(self, line_den=1):
         '''
         Sample line wn and their snr
         line_den is the avg number of lines per wn
@@ -65,7 +66,7 @@ class spec_gen():
         # Ensure N_high_snr lines are from highest SNRs
         highest_snrs = [10 ** self.bins[-(i+1)] for i in range(N_high_snr)] 
         # Sample line snrs
-        self.line_snr = np.array([self.sample_snr() for i in range(N)] + highest_snrs) 
+        self.line_snr = np.array([self._sample_snr() for i in range(N)] + highest_snrs) 
     
         # Sample line Gw
         # !!!!! HUMAN DECISION !!!!! for width of the normal distribution, need to view Gw-wn plot from get_properties of scan.py
@@ -78,7 +79,7 @@ class spec_gen():
         else:    
             self.line_Lw = []
             for Gw in self.line_Gw:
-                samples = abs(self.Lw_KDE.sample(1000)) # 1000 sample using KDE
+                samples = abs(self.Lw_KDE.sample(10000)) # 10000 sample using KDE
                 # Get sampled Lws within +- 0.001 cm-1 window of the sampled Gw
                 abs_diff = np.abs(samples[:, 0] - Gw)
                 possible_Lw = samples[abs_diff < 0.001][:, 1]
@@ -134,7 +135,7 @@ class spec_gen():
         self.line_Lw = np.array(combined_Lw)
         self.line_snr = np.array(combined_snr)
 
-    def get_sample_dist(self, N = 5):
+    def _get_sample_dist(self, N = 5):
         '''
         Create SNR distribution to sample from by linear extrapolating the input histogram
         N is running average bin width to smooth the histogram values
@@ -166,7 +167,7 @@ class spec_gen():
         # Compute the CDF
         return np.cumsum(self.hist)
 
-    def sample_snr(self):
+    def _sample_snr(self):
         '''
         Sample a snr from the extrapolated histogram
         '''
@@ -270,14 +271,14 @@ class spec_gen():
             plt.legend(loc='upper right')
         return output_spec
 
-    def make_spec(self, line_den=1, plot=False):
+    def _make_spec(self, line_den=1, plot=False):
         '''
         Simulate spectrum
         '''
         self.spec = np.zeros_like(self.wn)
         self.noise = np.random.normal(size=len(self.spec)) # Fixed noise beforehand in case we need to know lines are observable
         
-        self.init_lines(line_den=line_den)
+        self._init_lines(line_den=line_den)
         
         # Adding strongest lines first (sort by snr), they have most significant ringing and are most likely detectable
         sorted_indices = np.argsort(self.line_snr)[::-1] 
@@ -345,7 +346,7 @@ class spec_gen():
         self.line_Gw = self.line_Gw[self.target_idx]
         self.line_Lw = self.line_Lw[self.target_idx]
         self.line_snr = self.line_snr[self.target_idx]       
-        self.cog_close_lines(1)
+        self._cog_close_lines(1)
         # self.find_blend()
         
         if plot:
@@ -361,10 +362,10 @@ class spec_gen():
         plt.ylabel('snr')
         plt.legend(loc='upper right')
         
-    def cog_close_lines(self, combine_width=1):
+    def _cog_close_lines(self, combine_width=1):
         '''
         Combine lines that are too close (closer than combine_width * self.exp_res)
-        Should happen after adding lines to spectrum in self.make_spec
+        Should happen after adding lines to spectrum in self._make_spec
         Different to line combination before adding lines to the spectrum (no weak_th)
         '''
         # Sort lines by wn
@@ -426,7 +427,7 @@ class spec_gen():
             1 - closest point to line_wn
             0 - not a point closest to line_wn
         '''
-        self.make_spec(line_den=line_den, plot=plot)
+        self._make_spec(line_den=line_den, plot=plot)
         
         # Interpolation
         # !!!!! HUMAN DECISION !!!!! Fourier interpolation by integer number of power of 2 points
