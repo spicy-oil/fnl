@@ -20,6 +20,12 @@ Ideally install within a separate virtual environment (e.g. conda) to avoid conf
 - PyTorch >= 2.4 (developed using `2.4.0`)
 - [Optional] CUDA if using GPU support with PyTorch (developed using PyTorch compiled with CUDA Toolkit `12.4`, installation varies depending on system)
 
+For example with conda environment,
+```
+conda create -n fnl python=3.10.12
+conda activate fnl
+```
+
 If not running with GPU, install using pip under the fts-nn-ll directory containing `pyproject.toml`.
 
 ```bash
@@ -30,7 +36,7 @@ Use `-e` if want installation to point to source code, so that source code edits
 
 Alternatively, can just `import fts_nn_ll` in python while in the fts-nn-ll directory, after ensuring the dependencies (listed in `pyproject.toml`) are installed manually within the environment.
 
-If running with GPU, ensure Python, PyTorch, and CUDA Toolkit are all compatible with each other first before installing other dependencies. Then remove `'torch >= 2.4.0, < 3'` from `pyproject.toml` if running pip install. 
+If running with GPU, ensure Python, PyTorch, and CUDA Toolkit are all compatible with each other first in the environment before installing other dependencies. Then remove `'torch >= 2.4.0, < 3'` from `pyproject.toml` if running pip install. 
 
 The fits-nn-ll package should be compatible with a python environment set up for [TAG-DQN](https://github.com/spicy-oil/tag-dqn), in which case one can install without dependencies so that fts_nn_ll can be imported in the python environment that runs TAG-DQN.
 
