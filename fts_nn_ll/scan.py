@@ -49,7 +49,7 @@ def get_experimental_spec_properties(x, y, fwhm=0.1, plot=False):
 
     # Fit the spectrum one line (> 10 snr) at a time
     print('------------------------------------------------')
-    print('Fitting the spectrum, one line at a time')
+    print('Fitting the spectrum, one line at a time for S/N > 10')
     popt = [] # Total list of line parameters
     Gw_lb = fwhm / 10 # Gw lower bound
     Gw_ub = fwhm # Gw upper bound

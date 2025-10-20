@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fts-nn-ll"
+version = "0.1.0"
+description = "A neural network package for spectral line detection in high-resolution FT atomic emission spectroscopy"
+readme = "README.md"
+authors = [
+    { name = "Milan Ding", email = "milan.ding15@imperial.ac.uk" }
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3.10"
+]
+
+dependencies = [
+    "numpy >=1.26.4, <2",
+    "scipy >=1.13.0, <2",
+    "matplotlib >=3.8.4, <4",
+    "pandas >=2.2.1, <3",
+    "openpyxl >=3.1.2, <4",
+    "torch >=2.4.0, <3",
+    "scikit-learn >=1.4.2, <2",
+    "tqdm >=4.66.2, <5"
+]
+
+[project.urls]
+Homepage = "https://github.com/spicy-oil/fts-nn-ll"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]

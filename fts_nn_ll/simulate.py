@@ -290,7 +290,7 @@ class SpecSimulator():
         self.target_idx = [] # indices of lines that are identifiable and to be trained to be detectable
         
         print('------------------------------------------------')
-        print('Simulating spectrum')
+        print('Simulating spectrum by adding one line at a time')
         # Don't calculate Voigt outside +- 20 cm-1 of the line to save resources
         # May need to be increased in extremely low max OPD (large resolution-limited ringing) situations
         width = 20

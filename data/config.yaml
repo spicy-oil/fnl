@@ -1,0 +1,30 @@
+
+
+file: './data/example_spec.npy'  # spectrum file as a 1D numpy array, directory is relative to running directory
+
+# Exp spec parameters
+exp_res: 0.0364008               # experimental spectral resolution decided by largest optical path difference
+start_wn: 19472.7898759          # starting wn
+delw: 0.0177391757119            # /cm distance between each point in the spectrum
+scale_factor: 1.11111e-06        # to multiply to convert to snr, use 1 if already in snr scale
+line_region: [20801, 26000]      # Within which we wish to extract lines, e.g., if alias 1, spec around wn = 0 would be bad, so please change this accordingly
+fwhm: 0.1                        # guess fwhm for the lines for scanning the spectrum for simulation parameters, this also determines Gw and Lw fit boundaries in the scan (see scan.py)!
+
+# Sim spec parameters
+N_specs: 4                       # N simulated specs for training, costs memory!
+Gw_std: 0.1                      # Sampling std for Gw during simulation
+line_den_mult: 20                # Factor times the line density of lines above 10 S/N to estimate true line density
+snr_min: 3                       # minimum snr for a simulated line to be detectable
+N_interp: 0                      # log_2 of the factor of increase in the number of points from Fourier interpolation (0 = no interp, 1 = 2x, 2 = 4x, etc.), costs memory!
+
+# NN training parameters
+chunk_size: 1024                 # pre-interpolation chunk size for training (cutting spectrum into pieces of length chunk_size), but will be multiplied by 2 ** N_interp in manager.py
+batch_size: 256                  # number of chunks per loss function calculation
+num_epochs: 888                  # maximum number of times trained over all simulation data, early stopping is implemented so training might not reach this number of epochs
+lr: 0.001                        # ADAM optimiser learning rate
+hidden_size: 64                  # No. of LSTM cells per layer per direction
+
+# Prediction and linelist extraction parameters
+mad_scaling: True                # Scales noise level greater than 1 to 1 using median absolute deviation of each chunk, not recommended for high line densities
+peak_prob_th: 0.5                # threshold probability to be identified as possible peak position
+blend_th: 3                      # multiple of approx. FWHM to determine whether lines should be fitted together, more means more lines per fit, but could be slow if line density is very high! Reduce if 
