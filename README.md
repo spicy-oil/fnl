@@ -117,7 +117,7 @@ However, significant nuclear perturbation to fine structure levels are quite com
 ## References
 The example spectrum is available on the National Solar Observatory (NSO, Arizona US) Archives [[5, 6]](#references), used in the recent spectrum and term analysis of Fe II [[7]](#references).
 
-[[1] Ding M. et al. 2025, *submitted*](https://doi.org/10.48550/arXiv.2501.12276)  
+[[1] Ding M. et al. 2025, *Machine Learning: Science and Technology*, vol. 6, no. 3, p. 035008](https://doi.org/10.1088/2632-2153/adece6)  
 [[2] Nave G. et al. 2015, *Astrophysics Source Code Library*, record ascl:1511.004](https://www.ascl.net/1511.004)  
 [[3] Stancik A. L. and Brauns E. B. 2008, *Vibrational Spectrosctroscopy*, vol. 47, no. 1, pp. 66-69](http://dx.doi.org/10.1016/j.vibspec.2008.02.009)  
 [[4] Ding M. et al. 2024, *Astronomy & Astrophysics*, vol. 684, no. A149](https://doi.org/10.1051/0004-6361/202348794)  
