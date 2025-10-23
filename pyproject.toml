@@ -5,6 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "fnl"
 version = "0.1.0"
+license = { file = "LICENSE" }
 description = "A neural network package for spectral line detection in high-resolution FT atomic emission spectroscopy"
 readme = "README.md"
 authors = [
