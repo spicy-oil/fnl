@@ -1,5 +1,5 @@
 #%%
-import fts_nn_ll as nl
+from fnl import Manager
 
 config_file = './data/config.yaml'
 
@@ -8,7 +8,7 @@ config_file = './data/config.yaml'
 #%% Step 1 - Initialise and preprocess
 # The API is a class storing raw + processed data, config parameters, 
 # and functions for preprocessing, simulations, training, post-processing
-m = nl.Manager(config_file)
+m = Manager(config_file)
 
 #%% Step 2 - Get stats from exp. spec. for simulation
 m.scan()
